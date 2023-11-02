@@ -10,11 +10,14 @@ app.use(helmet());
 app.use(compression)
 
 // init db
-app.get('/', (req, res) => {
-   return res.status(200).json({message:'Hello World!'});
-});
+require('./dbs/init.mongodb')
+// const { checkOverload } = require('./helpers/check.connect')
+// checkOverload()
 
 // init routers
+app.get('/', (req, res) => {
+    return res.status(200).json({ message: 'Hello World!' })
+})
 
 // handle errors
 
