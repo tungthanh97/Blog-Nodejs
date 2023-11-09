@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 const KeyTokenService = require('./keyToken.service')
 const { createTokenPair } = require('../auth/authUtils')
+const { getInfoData } = require('../utils')
 
 const RoleShop = {
     SHOP: 'SHOP',
@@ -42,6 +43,14 @@ class AccessService {
                     'rsa',
                     {
                         modulusLength: 4096,
+                        publicKeyEncoding: {
+                            type: 'pkcs1',
+                            format: 'pem',
+                        },
+                        privateKeyEncoding: {
+                            type: 'pkcs1',
+                            format: 'pem',
+                        },
                     }
                 )
 
@@ -60,10 +69,11 @@ class AccessService {
                     }
                 }
 
+                const publicKeyObject = crypto.createPublicKey(publicKeyString)
                 // created token pair
                 const tokens = await createTokenPair(
                     { userId: newShop._id, email },
-                    publicKey,
+                    publicKeyObject,
                     privateKey
                 )
                 console.log(`Created Token Success::`, tokens)
@@ -71,7 +81,10 @@ class AccessService {
                 return {
                     code: 201,
                     metadata: {
-                        shop: newShop,
+                        shop: getInfoData({
+                            fields: ['_id', 'name', 'email'],
+                            objectj: newShop,
+                        }),
                         tokens,
                     },
                 }
