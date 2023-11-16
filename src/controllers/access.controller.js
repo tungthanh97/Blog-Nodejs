@@ -2,9 +2,15 @@
 
 const AccessService = require('../services/access.service')
 
-const { CREATED } = require('../core/success.response')
+const { CREATED, SuccessResponse } = require('../core/success.response')
 
 class AccessController {
+    login = async (req, res) => {
+        new SuccessResponse({
+            metadata: await AccessService.login(req.body),
+        }).send(res)
+    }
+
     signUp = async (req, res) => {
         new CREATED({
             message: 'Registered!',
