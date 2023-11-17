@@ -19,7 +19,14 @@ const RoleShop = {
 }
 
 class AccessService {
-    static login = async ({ email, password, refreshToken = null }) => {
+    static logout = async (keyStore) => {
+        const delKey = await KeyTokenService.removeKeyById(keyStore._id)
+
+        console.log('delKey', delKey)
+        return delKey
+    }
+
+    static login = async ({ email, password }) => {
         // 1. Check email in dbs
         const foundShop = await findByEmail({ email })
         if (!foundShop) throw new BadRequestError('Error: Shop not found')
@@ -49,7 +56,7 @@ class AccessService {
         return {
             shop: getInfoData({
                 fields: ['_id', 'name', 'email'],
-                objectj: foundShop,
+                object: foundShop,
             }),
             tokens,
         }
@@ -116,7 +123,7 @@ class AccessService {
                 metadata: {
                     shop: getInfoData({
                         fields: ['_id', 'name', 'email'],
-                        objectj: newShop,
+                        object: newShop,
                     }),
                     tokens,
                 },
