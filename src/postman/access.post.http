@@ -1,4 +1,4 @@
-@url_dev=http://localhost:3056/v1/api 
+@url_dev=https://blog-nodejs-jet.vercel.app/v1/api 
 
 
 ### signup
