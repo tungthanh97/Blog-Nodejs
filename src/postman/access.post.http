@@ -2,12 +2,12 @@
 
 
 ### signup
-POST {{url_dev}}/shop/signup
+POST {{url_dev}}/user/signup
 Content-Type: application/json
 x-api-key: e99205ca91b8dcfed3fde2a3cdf63441
 
 {
-    "name": "shop01",
-    "email": "shop01@gmail.com",
+    "name": "user01",
+    "email": "user01@gmail.com",
     "password": "123456"
 }

@@ -2,10 +2,13 @@
 
 const mongoose = require('mongoose')
 const {
-    db: { host, name, port },
+    db: { uri },
 } = require('../configs/config.mongodb')
 
-const connectionStr = `mongodb://${host}:${port}/${name}`
+// const connectionStr = `mongodb://${host}:${port}/${name}`
+const connectionStr = uri
+
+console.log('connectionStr', connectionStr)
 
 class Database {
     constructor() {

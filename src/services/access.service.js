@@ -1,17 +1,17 @@
 'use strict'
 
-const shopModel = require('../models/shop.model')
+const userModel = require('../models/user.model')
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 const KeyTokenService = require('./keyToken.service')
 const { createTokenPair } = require('../auth/authUtils')
 const { getInfoData } = require('../utils')
 const { BadRequestError, AuthFailureError } = require('../core/error.response')
-const { findByEmail } = require('./shop.service')
+const { findByEmail } = require('./user.service')
 
 // service ///
 
-const RoleShop = {
+const RoleUser = {
     SHOP: 'SHOP',
     WRITER: 'WRITER',
     EDITOR: 'EDITOR',
@@ -28,18 +28,18 @@ class AccessService {
 
     static login = async ({ email, password }) => {
         // 1. Check email in dbs
-        const foundShop = await findByEmail({ email })
-        if (!foundShop) throw new BadRequestError('Error: Shop not found')
+        const foundUser = await findByEmail({ email })
+        if (!foundUser) throw new BadRequestError('Error: User not found')
 
         // 2. Match password
-        const match = bcrypt.compare(password, foundShop.password)
+        const match = bcrypt.compare(password, foundUser.password)
         if (!match) throw new AuthFailureError('Authentication Error')
 
         // 3. Create AT and RT
         const privateKey = crypto.randomBytes(64).toString('hex')
         const publicKey = crypto.randomBytes(64).toString('hex')
         // 4. Generate tokens
-        const { _id: userId } = foundShop
+        const { _id: userId } = foundUser
         const tokens = await createTokenPair(
             { userId, email },
             publicKey,
@@ -54,9 +54,9 @@ class AccessService {
         })
 
         return {
-            shop: getInfoData({
+            user: getInfoData({
                 fields: ['_id', 'name', 'email'],
-                object: foundShop,
+                object: foundUser,
             }),
             tokens,
         }
@@ -64,21 +64,21 @@ class AccessService {
 
     static signUp = async ({ name, email, password }) => {
         // step1: check email exists??
-        const holderShop = await shopModel.findOne({ email }).lean()
+        const holderUser = await userModel.findOne({ email }).lean()
 
-        if (holderShop) {
-            throw new BadRequestError('Error: Shop already exist')
+        if (holderUser) {
+            throw new BadRequestError('Error: User already exist')
         }
 
         const passwordHash = await bcrypt.hash(password, 10)
-        const newShop = await shopModel.create({
+        const newUser = await userModel.create({
             name,
             email,
             password: passwordHash,
-            roles: [RoleShop.SHOP],
+            roles: [RoleUser.SHOP],
         })
 
-        if (newShop) {
+        if (newUser) {
             // created privateKey, publicKey
             // const { privateKey, publicKey } = crypto.generateKeyPairSync(
             //     'rsa',
@@ -101,7 +101,7 @@ class AccessService {
             console.log({ privateKey, publicKey })
 
             const keyStore = await KeyTokenService.createKeyToken({
-                userId: newShop._id,
+                userId: newUser._id,
                 publicKey,
                 privateKey,
             })
@@ -112,7 +112,7 @@ class AccessService {
 
             // created token pair
             const tokens = await createTokenPair(
-                { userId: newShop._id, email },
+                { userId: newUser._id, email },
                 publicKey,
                 privateKey
             )
@@ -121,9 +121,9 @@ class AccessService {
             return {
                 code: 201,
                 metadata: {
-                    shop: getInfoData({
+                    user: getInfoData({
                         fields: ['_id', 'name', 'email'],
-                        object: newShop,
+                        object: newUser,
                     }),
                     tokens,
                 },
